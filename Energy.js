@@ -1,14 +1,17 @@
 
 var Client = require("ibmiotf");
+var moment = require("moment");
 var net = require('net');
 //var sleep = require("sleep");
-var deviceConfig = new require("./weather.json");
+var deviceConfig = new require("./riya.json");
+//var deviceConfig = new require("./weather.json");
 var deviceClient = new Client.IotfGateway(deviceConfig);
 //var deviceClient = new Client.IotfDevice(deviceConfig);
 
 var msg = "$HTSTEST1,HTS0001,A47C4365,A1FD4365,A0D04365,AAA54365,00000000,00000000,00000000,#";  // sample packet 
 var client = new net.Socket();
-client.connect(8080, '192.168.1.150', function() {
+client.connect(9000, '10.175.174.49', function() {
+//client.connect(8080, '10.175.174.38', function() {
 	console.log('Connected');
 	client.write('REQDATA\r\n');
 });
@@ -32,6 +35,12 @@ var getTemp = function() {
 		        console.log("current Temp is " + cel);
 			        return cel.toFixed(4);
 };
+/****get Time ****/
+var getTimestamp = function() {
+	console.log("Time",moment().valueOf());
+return moment().valueOf();	
+}
+/****get Time ***/
 
 var getTemperature = function(msg1){
 	msg1 = msg1.toString();
@@ -97,14 +106,11 @@ deviceClient.on("connect", function() {
 	        console.log("successfully connected to IoTF");
 
 		 setInterval(function() {
-				client.connect(8080, '192.168.1.150', function() {
+				client.connect(9000, '10.175.174.49', function() {
+				//client.connect(8080, '192.168.1.150', function() {
 				console.log('Connected');
 				client.write('REQDATA\r\n');
 				});
-			                 deviceClient.publishGatewayEvent("status","json",'{"d":{"Voltage":' +getVoltage(msg) +'}}');
-							 deviceClient.publishGatewayEvent("status","json",'{"d":{"Current":' +getCurrent(msg) +'}}');
-							 deviceClient.publishGatewayEvent("status","json",'{"d":{"Frequency":' +getFrequency(msg) +'}}');
-							 deviceClient.publishGatewayEvent("status","json",'{"d":{"Power Factor":' +getPowerFactor(msg) +'}}');
-							 deviceClient.publishGatewayEvent("status","json",'{"d":{"Kwh":' +getKwh(msg) +'}}');
+			                 deviceClient.publishGatewayEvent("status","json",'{"d":{"Voltage":' +getVoltage(msg)+ ',"Current":' +getCurrent(msg)+',"Frequency":'+getFrequency(msg)+',"Power_Factor":'+getPowerFactor(msg)+',"Kwh":'+getKwh(msg)+',"Time":'+getTimestamp()+' }}');
 							},3000);
 });
